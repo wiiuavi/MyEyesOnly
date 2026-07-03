@@ -28,7 +28,7 @@ def encryptionToggleMessage(messageBytes, keySeedBytes, offset=0):
 def askForDir():
     root = tk.Tk()
     root.withdraw()
-    selectedFolder = filedialog.askdirectory(title="Select Folder for Outputs and DB")
+    selectedFolder = filedialog.askdirectory(title="Select Target Folder")
     if selectedFolder:
         print(f"Directory set: {selectedFolder}")
         return selectedFolder
@@ -38,7 +38,7 @@ def askForFile():
     root = tk.Tk()
     root.withdraw()
     filePath = filedialog.askopenfilename(
-        title="Select a File to Encrypt",
+        title="Select a File",
         filetypes=[("All Files", "*.*")]
     )
     if filePath:
@@ -129,8 +129,63 @@ def encryptAndSplitFile(filePath, numSplits, mainFolder, cur, con):
     ''', (creationDate, fileNameOnly, uniqueKeySeed, activeStatus))
     con.commit()
 
+def decryptAndMergeFiles(targetFolder, entryId, cur):
+    cur.execute("SELECT FileName, Key FROM keymap WHERE CreateID = ?", (entryId,))
+    record = cur.fetchone()
+    
+    if not record:
+        print("Error: No entry found with that ID.")
+        return
+
+    originalFileName, keySeedBytes = record[0], record[1]
+    baseName = os.path.splitext(originalFileName)[0]
+    
+    foundFiles = []
+    for f in os.listdir(targetFolder):
+        if f.startswith(f"{baseName}_part"):
+            foundFiles.append(f)
+
+    if len(foundFiles) == 0:
+        print(f"Error: No parts found for '{baseName}' in {targetFolder}")
+        return
+
+    try:
+        foundFiles.sort(key=lambda x: int(x.rsplit('_part', 1)[-1]))
+    except ValueError:
+        print("Error: Malformed part numbers in directory.")
+        return
+
+    expectedPart = 1
+    for f in foundFiles:
+        partNum = int(f.rsplit('_part', 1)[-1])
+        if partNum != expectedPart:
+            print(f"Error: Missing part {expectedPart}. Found {partNum} instead. Decryption aborted.")
+            return
+        expectedPart += 1
+
+    outputFilePath = os.path.join(targetFolder, f"decrypted_{originalFileName}")
+    overallOffset = 0
+    chunkSize = 1024 * 1024 * 5
+
+    print("Starting decryption and merge process...")
+    with open(outputFilePath, 'wb') as outFile:
+        for fName in foundFiles:
+            partPath = os.path.join(targetFolder, fName)
+            with open(partPath, 'rb') as inFile:
+                while True:
+                    chunk = inFile.read(chunkSize)
+                    if not chunk:
+                        break
+                    
+                    decryptedChunk = encryptionToggleMessage(chunk, keySeedBytes, overallOffset)
+                    outFile.write(decryptedChunk)
+                    overallOffset += len(chunk)
+
+    print(f"Successfully decrypted and merged! Output saved as: {outputFilePath}")
+
 def runMockCLI():
     print("### CLI Initialization ###")
+    print("Please select the default directory for outputs and the database.")
     mainFolder = askForDir()
     if not mainFolder:
         print("Initialization failed: No folder selected.")
@@ -144,7 +199,7 @@ def runMockCLI():
         print("\n### Main Menu ###")
         print("1. Encrypt and Split a File")
         print("2. Review Database Entries")
-        print("3. Decrypt files")
+        print("3. Decrypt and Merge Files")
         print("4. Exit")
         
         userInput = input("Enter choice (1-4): ")
@@ -172,7 +227,28 @@ def runMockCLI():
                 print("No records found.")
         
         elif userInput == "3":
-            pass
+            print("Select the folder containing the encrypted file parts:")
+            targetFolder = askForDir()
+            if not targetFolder:
+                continue
+                
+            cur.execute("SELECT CreateID, DateOfCreation, FileName FROM keymap ORDER BY CreateID DESC LIMIT 5")
+            recentRecords = cur.fetchall()
+            
+            print("\n### Recent Database Entries ###")
+            for record in recentRecords:
+                print(f"ID: {record[0]} | Date: {record[1]} | File: {record[2]}")
+            
+            if not recentRecords:
+                print("No database entries exist yet.")
+                continue
+                
+            print("(Use option 2 in the main menu to see older entries)")
+            try:
+                entryId = int(input("\nEnter the ID of the file you want to decrypt: "))
+                decryptAndMergeFiles(targetFolder, entryId, cur)
+            except ValueError:
+                print("Error: Please enter a valid ID number.")
                 
         elif userInput == "4":
             print("Terminating application...")
