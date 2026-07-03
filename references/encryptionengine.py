@@ -37,5 +37,3 @@ def test():
     print("the OG message is: " + str(message))
 #    print("the encoded message is: " + str(encryptionToggleMessage(messageBytes, key)))
 #    print("running this through the same function returns: " + str(encryptionToggleMessage(encryptionToggleMessage(messageBytes, key), key).decode("utf-8")))
-
-test()
