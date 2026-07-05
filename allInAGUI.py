@@ -19,7 +19,7 @@ def setup_gui(master, main_folder, cur, con):
     target_decrypt_folder = ""
 
     def style_scrolled_text(widget):
-        widget.configure(bootstyle='dark')
+        widget.configure(bootstyle='darkly')
         widget.text.configure(
             background=master.style.colors.bg,
             foreground=master.style.colors.fg,
@@ -31,18 +31,18 @@ def setup_gui(master, main_folder, cur, con):
         )
 
     def create_header(parent, title, subtitle):
-        header = ttk.Frame(parent, bootstyle='dark')
+        header = ttk.Frame(parent, bootstyle='darkly')
         header.pack(fill=X, pady=(0, 10), padx=8)
         ttk.Label(
             header,
             text=title,
             font=("Segoe UI", 20, "bold"),
-            bootstyle='inverse-dark',
+            bootstyle='inverse-darkly',
         ).pack(anchor=W)
         ttk.Label(
             header,
             text=subtitle,
-            bootstyle='inverse-dark',
+            bootstyle='inverse-darkly',
         ).pack(anchor=W, pady=(4, 0))
 
     def create_info_box(parent, text):
@@ -51,19 +51,19 @@ def setup_gui(master, main_folder, cur, con):
             text=text,
             wraplength=900,
             justify=LEFT,
-            bootstyle='inverse-dark',
+            bootstyle='inverse-darkly',
             padding=(10, 10),
         )
         info.pack(fill=X, pady=(0, 10), padx=8)
         return info
 
-    notebook = ttk.Notebook(master, bootstyle='dark')
+    notebook = ttk.Notebook(master, bootstyle='darkly')
     notebook.pack(fill=BOTH, expand=YES, padx=10, pady=10)
 
-    tab_home = ttk.Frame(notebook, bootstyle='dark')
-    tab_encrypt = ttk.Frame(notebook, bootstyle='dark')
-    tab_decrypt = ttk.Frame(notebook, bootstyle='dark')
-    tab_review = ttk.Frame(notebook, bootstyle='dark')
+    tab_home = ttk.Frame(notebook, bootstyle='darkly')
+    tab_encrypt = ttk.Frame(notebook, bootstyle='darkly')
+    tab_decrypt = ttk.Frame(notebook, bootstyle='darkly')
+    tab_review = ttk.Frame(notebook, bootstyle='darkly')
 
     notebook.add(tab_home, text='Home')
     notebook.add(tab_encrypt, text='Encrypt / Split')
@@ -73,17 +73,17 @@ def setup_gui(master, main_folder, cur, con):
     create_header(tab_home, 'MyEyesOnly Dashboard', 'Monitor your encrypted files and recent database activity.')
     create_info_box(tab_home, 'Welcome to your secure dashboard. The latest database entries and summary stats appear here in real time.')
 
-    home_content = ttk.Frame(tab_home, bootstyle='dark')
+    home_content = ttk.Frame(tab_home, bootstyle='darkly')
     home_content.pack(fill=BOTH, expand=YES, padx=8, pady=6)
 
-    recent_frame = ttk.Labelframe(home_content, text='Recent Database Entries', padding=12, bootstyle='dark')
+    recent_frame = ttk.Labelframe(home_content, text='Recent Database Entries', padding=12, bootstyle='darkly')
     recent_frame.pack(side=LEFT, fill=BOTH, expand=YES, padx=(0, 6), pady=0)
 
-    recent_text = ScrolledText(recent_frame, height=12, autohide=True, bootstyle='dark')
+    recent_text = ScrolledText(recent_frame, height=12, autohide=True, bootstyle='darkly')
     recent_text.pack(fill=BOTH, expand=YES)
     style_scrolled_text(recent_text)
 
-    summary_frame = ttk.Labelframe(home_content, text='Encryption Summary', padding=12, bootstyle='dark')
+    summary_frame = ttk.Labelframe(home_content, text='Encryption Summary', padding=12, bootstyle='darkly')
     summary_frame.pack(side=RIGHT, fill=BOTH, expand=YES, padx=(6, 0), pady=0)
 
     total_label = ttk.Label(
@@ -92,18 +92,18 @@ def setup_gui(master, main_folder, cur, con):
         font=("Segoe UI", 18, "bold"),
         justify=CENTER,
         anchor=CENTER,
-        bootstyle='inverse-dark',
+        bootstyle='inverse-darkly',
     )
     total_label.pack(expand=YES, fill=BOTH)
 
     create_header(tab_encrypt, 'Encrypt & Split', 'Select a file, choose how many parts, and run the CLI encryption workflow.')
     create_info_box(tab_encrypt, 'Select the source file to encrypt and split. This UI uses the same helper functions as the CLI tool.')
 
-    encrypt_panel = ttk.Labelframe(tab_encrypt, text='Encrypt Settings', padding=12, bootstyle='dark')
+    encrypt_panel = ttk.Labelframe(tab_encrypt, text='Encrypt Settings', padding=12, bootstyle='darkly')
     encrypt_panel.pack(fill=X, pady=6, padx=8)
 
     split_var = ttk.StringVar(value='1')
-    status_label = ttk.Label(tab_encrypt, text='No file selected.', bootstyle='inverse-dark')
+    status_label = ttk.Label(tab_encrypt, text='No file selected.', bootstyle='inverse-darkly')
     start_button = ttk.Button(tab_encrypt, text='Start Encryption', bootstyle=(SUCCESS, OUTLINE), state=DISABLED)
 
     def update_encrypt_status(*args):
@@ -154,10 +154,10 @@ def setup_gui(master, main_folder, cur, con):
             Messagebox.show_error(str(exc), 'Error')
 
     ttk.Button(encrypt_panel, text='Select File to Encrypt', command=choose_file, bootstyle=(INFO, OUTLINE)).pack(side=LEFT, padx=(0, 10))
-    ttk.Label(encrypt_panel, text='Number of splits:', bootstyle='inverse-dark').pack(side=LEFT, padx=(10, 5))
-    ttk.Spinbox(encrypt_panel, from_=1, to=1000, textvariable=split_var, width=6, bootstyle='dark').pack(side=LEFT)
+    ttk.Label(encrypt_panel, text='Number of splits:', bootstyle='inverse-darkly').pack(side=LEFT, padx=(10, 5))
+    ttk.Spinbox(encrypt_panel, from_=1, to=1000, textvariable=split_var, width=6, bootstyle='darkly').pack(side=LEFT)
 
-    stats_frame = ttk.Labelframe(tab_encrypt, text='File Statistics', padding=12, bootstyle='dark')
+    stats_frame = ttk.Labelframe(tab_encrypt, text='File Statistics', padding=12, bootstyle='darkly')
     stats_frame.pack(fill=X, pady=6, padx=8)
     status_label.pack(in_=stats_frame, anchor=W)
 
@@ -167,10 +167,10 @@ def setup_gui(master, main_folder, cur, con):
     create_header(tab_decrypt, 'Decrypt & Merge', 'Pick the folder with parts and provide the database entry ID.')
     create_info_box(tab_decrypt, 'Use the CLI folder picker and database entry to reconstruct the original file.')
 
-    decrypt_panel = ttk.Labelframe(tab_decrypt, text='Decrypt Settings', padding=12, bootstyle='dark')
+    decrypt_panel = ttk.Labelframe(tab_decrypt, text='Decrypt Settings', padding=12, bootstyle='darkly')
     decrypt_panel.pack(fill=X, pady=6, padx=8)
 
-    decrypt_folder_label = ttk.Label(decrypt_panel, text='No folder selected.', bootstyle='inverse-dark')
+    decrypt_folder_label = ttk.Label(decrypt_panel, text='No folder selected.', bootstyle='inverse-darkly')
 
     def choose_decrypt_folder():
         nonlocal target_decrypt_folder
@@ -182,15 +182,15 @@ def setup_gui(master, main_folder, cur, con):
     ttk.Button(decrypt_panel, text='Select Folder with Parts', command=choose_decrypt_folder, bootstyle=(INFO, OUTLINE)).pack(side=LEFT, padx=(0, 10))
     decrypt_folder_label.pack(side=LEFT)
 
-    entry_frame = ttk.Frame(tab_decrypt, bootstyle='dark')
+    entry_frame = ttk.Frame(tab_decrypt, bootstyle='darkly')
     entry_frame.pack(fill=X, pady=10, padx=8)
-    ttk.Label(entry_frame, text='Database Entry ID:', bootstyle='inverse-dark').pack(side=LEFT, padx=(0, 5))
+    ttk.Label(entry_frame, text='Database Entry ID:', bootstyle='inverse-darkly').pack(side=LEFT, padx=(0, 5))
     decrypt_id_var = ttk.StringVar()
-    ttk.Entry(entry_frame, textvariable=decrypt_id_var, width=12, bootstyle='dark').pack(side=LEFT)
+    ttk.Entry(entry_frame, textvariable=decrypt_id_var, width=12, bootstyle='darkly').pack(side=LEFT)
 
-    preview_frame = ttk.Labelframe(tab_decrypt, text='Recent Database Entries', padding=12, bootstyle='dark')
+    preview_frame = ttk.Labelframe(tab_decrypt, text='Recent Database Entries', padding=12, bootstyle='darkly')
     preview_frame.pack(fill=BOTH, expand=YES, pady=6, padx=8)
-    decrypt_preview = ScrolledText(preview_frame, height=6, autohide=True, bootstyle='dark')
+    decrypt_preview = ScrolledText(preview_frame, height=6, autohide=True, bootstyle='darkly')
     decrypt_preview.pack(fill=BOTH, expand=YES)
     style_scrolled_text(decrypt_preview)
 
@@ -212,7 +212,7 @@ def setup_gui(master, main_folder, cur, con):
     create_header(tab_review, 'Review Database', 'Inspect every stored encryption record.')
     create_info_box(tab_review, 'This tab displays all records from the SQLite keymap database.')
 
-    review_text = ScrolledText(tab_review, height=16, autohide=True, bootstyle='dark')
+    review_text = ScrolledText(tab_review, height=16, autohide=True, bootstyle='darkly')
     review_text.pack(fill=BOTH, expand=YES, pady=6, padx=8)
     style_scrolled_text(review_text)
 
@@ -260,7 +260,7 @@ if __name__ == '__main__':
 
     style = app.style
     style.theme_use('darkly')
-    style.configure('TNotebook', background=style.colors.bg, foreground=style.colors.fg, bordercolor=style.colors.bg, lightcolor=style.colors.bg, darkcolor=style.colors.bg)
+    style.configure('TNotebook', background=style.colors.bg, foreground=style.colors.fg, bordercolor=style.colors.bg, lightcolor=style.colors.bg, darklycolor=style.colors.bg)
     style.configure('TNotebook.Tab', background=style.colors.bg, foreground=style.colors.fg, padding=(10, 8))
     style.map(
         'TNotebook.Tab',
