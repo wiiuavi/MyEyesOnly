@@ -29,6 +29,7 @@ def askForDir():
     root = tk.Tk()
     root.withdraw()
     selectedFolder = filedialog.askdirectory(title="Select Target Folder")
+    root.destroy()
     if selectedFolder:
         print(f"Directory set: {selectedFolder}")
         return selectedFolder
@@ -41,6 +42,7 @@ def askForFile():
         title="Select a File",
         filetypes=[("All Files", "*.*")]
     )
+    root.destroy()
     if filePath:
         print(f"Target selected: {filePath}")
         return filePath
@@ -66,7 +68,7 @@ def tableConnection(mainFolder):
     con.commit()
     return cur, con
 
-def encryptAndSplitFile(filePath, numSplits, mainFolder, cur, con):
+def encryptAndSplitFile(filePath, numSplits, mainFolder, cur, con, progressCallback=None):
     if not filePath or not os.path.exists(filePath):
         return
         
@@ -115,6 +117,8 @@ def encryptAndSplitFile(filePath, numSplits, mainFolder, cur, con):
                     outFile = open(currentOutPath, 'wb')
             
             progress = (overallOffset / totalSize) * 100
+            if progressCallback:
+                progressCallback(progress)
             print(f"\rEncrypting... {progress:.2f}% complete", end="", flush=True)
 
     outFile.close()
@@ -132,10 +136,9 @@ def encryptAndSplitFile(filePath, numSplits, mainFolder, cur, con):
 def decryptAndMergeFiles(targetFolder, entryId, cur):
     cur.execute("SELECT FileName, Key FROM keymap WHERE CreateID = ?", (entryId,))
     record = cur.fetchone()
-    
+
     if not record:
-        print("Error: No entry found with that ID.")
-        return
+        raise ValueError(f"No entry found with ID {entryId}.")
 
     originalFileName, keySeedBytes = record[0], record[1]
     baseName = os.path.splitext(originalFileName)[0]
@@ -146,28 +149,25 @@ def decryptAndMergeFiles(targetFolder, entryId, cur):
             foundFiles.append(f)
 
     if len(foundFiles) == 0:
-        print(f"Error: No parts found for '{baseName}' in {targetFolder}")
-        return
+        raise FileNotFoundError(f"No parts found for '{baseName}' in {targetFolder}")
 
     try:
         foundFiles.sort(key=lambda x: int(x.rsplit('_part', 1)[-1]))
     except ValueError:
-        print("Error: Malformed part numbers in directory.")
-        return
+        raise ValueError("Malformed part numbers in directory.")
 
     expectedPart = 1
     for f in foundFiles:
         partNum = int(f.rsplit('_part', 1)[-1])
         if partNum != expectedPart:
-            print(f"Error: Missing part {expectedPart}. Found {partNum} instead. Decryption aborted.")
-            return
+            raise ValueError(f"Missing part {expectedPart}. Found {partNum} instead.")
         expectedPart += 1
 
     outputFilePath = os.path.join(targetFolder, f"decrypted_{originalFileName}")
     overallOffset = 0
     chunkSize = 1024 * 1024 * 5
 
-    print("Starting decryption and merge process...")
+    # perform decryption/merge
     with open(outputFilePath, 'wb') as outFile:
         for fName in foundFiles:
             partPath = os.path.join(targetFolder, fName)
@@ -181,7 +181,8 @@ def decryptAndMergeFiles(targetFolder, entryId, cur):
                     outFile.write(decryptedChunk)
                     overallOffset += len(chunk)
 
-    print(f"Successfully decrypted and merged! Output saved as: {outputFilePath}")
+    # return the output path on success
+    return outputFilePath
 
 def runMockCLI():
     print("### CLI Initialization ###")
