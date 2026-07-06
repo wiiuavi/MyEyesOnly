@@ -1,4 +1,11 @@
 # MyEyesOnly
+yooo its a demo vid
+
+
+https://github.com/user-attachments/assets/b5fb1ce6-5574-478a-a677-b5ba5f4fdc25
+
+
+
 
 This program will let you encrypt your files and store their keys in a database! Ensure only your eyes see your files! (note, while this won't stop interceptors accessing files you send over a network, this won't let them access your data)
 
